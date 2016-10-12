@@ -1,0 +1,189 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="semantic.min.css">
+        <script src="Chart.min.js"></script>
+        <script src="semantic.min.js"></script>
+    </head>
+    <body>
+        <div class="ui center aligned header">
+            <input class="ui button" type="file" id="file" name="file"/>
+            <div id="ctrl" class="ui buttons">
+            </div>
+        </div>
+        <div id="graphs" class="ui three column stackable grid container">
+        </div>
+        <script>
+// Check for the various File API support.
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+  // Great success! All the File APIs are supported.
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+
+
+function handleFileSelect(evt) {
+    var file = evt.target.files[0]; // FileList object
+    var reader = new FileReader();
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+        return function(e) {
+            // Render thumbnail.
+            draw_charts(JSON.parse(e.target.result));
+        };
+    })(file);
+
+    // Read in the image file as a data URL.
+    reader.readAsText(file);
+}
+
+document.getElementById('file').addEventListener('change', handleFileSelect, false);
+
+function draw_charts(data) {
+    window.sample_data = data;
+    var ctrls = document.getElementById("ctrl");
+    for (var cat in data['run1']) {
+        var button = document.createElement("button");
+        button.setAttribute("class", "ui button");
+        button.setAttribute("id", cat);
+        button.appendChild(document.createTextNode(cat));
+        button.addEventListener('click', handle_draw_chart, false);
+        ctrls.appendChild(button);
+    }
+}
+
+function handle_draw_chart(evt) {
+    var cat = evt.target.id;
+    var data = window.sample_data;
+    var run1 = data['run1'][cat];
+    var run2 = data['run2'][cat];
+    var graphs = document.getElementById("graphs");
+    for (var i = 0; i<graphs.children.length; i++) {
+        var c = document.querySelector("canvas");
+        if (c) c.parentNode.parentNode.remove();
+    }
+
+    for (var k in run1) {
+        // create div
+        //    <div class="column">
+        //        <div class="ui segment">
+        //            <canvas id="perc_50"></canvas>
+        //        </div>
+        //    </div>
+        var canvas = document.getElementById(k);
+        if (canvas === null) {
+            var div1 = document.createElement("div");
+            div1.setAttribute("class", "column graph");
+            var div2 = document.createElement("div");
+            div2.setAttribute("class", "ui segment");
+            canvas = document.createElement("canvas");
+            canvas.setAttribute("id", k);
+            div2.appendChild(canvas);
+            div1.appendChild(div2);
+            graphs.appendChild(div1);
+        }
+
+        var chart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: [1,2,3,4,5,6,7,8,9,10],
+                datasets: [
+                {
+                    fill: false,
+                    lineTension: 0.1,
+                    backgroundColor: "rgba(0,0,255,0.4)",
+                    borderColor: "rgba(0,0,255,1)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "rgba(0,0,255,1)",
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(0,0,255,1)",
+                    pointHoverBorderColor: "rgba(0,0,255,1)",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 1,
+                    pointHitRadius: 10,
+
+                    label: "run1",
+                    data: run1[k]
+                },
+                {
+                    fill: false,
+                    lineTension: 0.1,
+                    backgroundColor: "rgba(0,255,0,0.4)",
+                    borderColor: "rgba(0,255,0,1)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "rgba(0,255,0,1)",
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(0,255,0,1)",
+                    pointHoverBorderColor: "rgba(0,255,0,1)",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 1,
+                    pointHitRadius: 10,
+                    label: "run2",
+                    data: run2[k]
+                }
+                ]
+            },
+            options: {
+                title: {
+                    text: k,
+                    display: true
+                }
+            }
+        });
+    }
+}
+//
+//var ctx = document.getElementById("perc_999");
+//var myChart = new Chart(ctx, {
+//    type: 'line',
+//    data : {
+//        labels: ["January", "February", "March", "April", "May", "June", "July"],
+//        datasets: [
+//        {
+//            fill: false,
+//            lineTension: 0.1,
+//            backgroundColor: "rgba(75,192,192,0.4)",
+//            borderColor: "rgba(75,192,192,1)",
+//            borderCapStyle: 'butt',
+//            borderDash: [],
+//            borderDashOffset: 0.0,
+//            borderJoinStyle: 'miter',
+//            pointBorderColor: "rgba(75,192,192,1)",
+//            pointBackgroundColor: "#fff",
+//            pointBorderWidth: 1,
+//            pointHoverRadius: 5,
+//            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+//            pointHoverBorderColor: "rgba(220,220,220,1)",
+//            pointHoverBorderWidth: 2,
+//            pointRadius: 1,
+//            pointHitRadius: 10,
+//            data: [65, 59, 80, 81, 56, 55, 40],
+//            spanGaps: false,
+//        }
+//        ]
+//    },
+//    options: {
+//        scales: {
+//            yAxes: [{
+//                ticks: {
+//                    beginAtZero:true
+//                }
+//            }]
+//        }
+//    }
+//});
+</script>
+
+    </body>
+
+</html>
